@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ MIT License
+  ~
+  ~ Copyright (c) 2020 tommyqqt
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~ The above copyright notice and this permission notice shall be included in all
+  ~ copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.tommyq</groupId>
+    <artifactId>sbe-gotchas</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <version.sbe>1.18.2</version.sbe>
+        <version.agrona>1.5.1</version.agrona>
+        <version.junit>4.12</version.junit>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>uk.co.real-logic</groupId>
+            <artifactId>sbe-all</artifactId>
+            <version>${version.sbe}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.agrona</groupId>
+            <artifactId>agrona</artifactId>
+            <version>${version.agrona}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <id>unpack-sbe-xsd</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>uk.co.real-logic</groupId>
+                                    <artifactId>sbe-all</artifactId>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>fpl/sbe.xsd</includes>
+                            <outputDirectory>${project.build.directory}/generated-resources/</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includeProjectDependencies>false</includeProjectDependencies>
+                    <includePluginDependencies>true</includePluginDependencies>
+                    <mainClass>uk.co.real_logic.sbe.SbeTool</mainClass>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>user.dir</key>
+                            <value>${project.build.resources[0].directory}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>sbe.output.dir</key>
+                            <value>${project.build.directory}/generated-sources/java</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>sbe.java.generate.interfaces</key>
+                            <value>true</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>sbe.validation.xsd</key>
+                            <value>${project.build.directory}/generated-resources/fpl/sbe.xsd</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>sbe.validation.warnings.fatal</key>
+                            <value>true</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>sbe.validation.stop.on.error</key>
+                            <value>true</value>
+                        </systemProperty>
+                    </systemProperties>
+                    <arguments>
+                        <argument>${project.build.resources[0].directory}/example-nos.xml</argument>
+                    </arguments>
+                    <workingDirectory>${project.build.directory}/generated-sources/java</workingDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>uk.co.real-logic</groupId>
+                        <artifactId>sbe-tool</artifactId>
+                        <version>${version.sbe}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/java/</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
