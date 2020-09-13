@@ -52,11 +52,10 @@ public class SbeExampleTest {
 
     @Test(expected = java.lang.IndexOutOfBoundsException.class)
     public void testIncorrectEncodedLength() {
-        encodeSimpleOrder(nosEncoder, buffer);
         //Incorrect encodedLength!
+        //final int encodedLength = headerEncoder + nosEncoder.encodedLength();
+        encodeSimpleOrder(nosEncoder, buffer);
         final int encodedLength = nosEncoder.encodedLength();
-        // final int encodedLength = headerEncoder + nosEncoder.encodedLength();
-
         final byte[] bytes = new byte[encodedLength];
         buffer.getBytes(0, bytes);
         final DirectBuffer readBuffer = new UnsafeBuffer(bytes);
@@ -96,10 +95,8 @@ public class SbeExampleTest {
     public void testCallingRepeatingGroupMultipleTimes() {
         encodeSimpleOrder(nosEncoder, buffer);
         wrapDecoder(headerDecoder, nosDecoder, buffer, 0);
-
-        NewOrderSingleDecoder.AllocationsDecoder allocDecoder = nosDecoder.allocations();
+        System.out.println("Number of allocations: " + nosDecoder.allocations().count()); // count = 2
         System.out.println("Current limit: " + nosDecoder.limit());
-        System.out.println("Number of allocations: " + allocDecoder.count()); // count = 2
         System.out.println("Number of allocations: " + nosDecoder.allocations().count()); // count = 20291 !!!
         System.out.println("Current limit: " + nosDecoder.limit());
     }
