@@ -104,19 +104,13 @@ public class SbeExampleTest {
     @Test
     public void testSporadicIndexOutOfBound () {
         encodeOrder(nosEncoder, "ORDER-001", 20200701,
-                "TRADER-001",
-                "ORDER DESC",
+                "TRADER-0123456789",
+                null,
                 buffer);
         //Flip the buffer to decoder
         wrapDecoder(headerDecoder, nosDecoder, buffer, 0);
         System.out.println(nosDecoder);
 
-        /**
-         * Encode again with longer traderDescription
-         * The length of OrderDescription is corrupted
-         * NULL order description
-         * Results in ArrayIndexOutOfBound Exception
-         */
         encodeOrder(nosEncoder, "ORDER-002", 20200701,
                 "TRADER-0001", //Longer trader desc
                 null,
